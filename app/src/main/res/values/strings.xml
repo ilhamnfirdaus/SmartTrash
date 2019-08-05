@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Smart Trash</string>
+
+    // Navbar
+    <string name="home">Home</string>
+    <string name="report">Report</string>
+    <string name="control">Control</string>
+    <string name="about">About</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="id">ID</string>
+    <string name="dht">DHT</string>
+    <string name="ultrasonik">Ultrasonik</string>
+    <string name="waktu">Waktu</string>
+
+    <string name="txtAbout">Dengan Aplikasi Smart Trash, dapat digunakan untuk mengolah sampah organik menjadi pupuk pupuk kompos. Waktu pengomposan berkisar antara 2 minggu dengan dilakukan penetesan larutan EM4</string>
+
+</resources>
