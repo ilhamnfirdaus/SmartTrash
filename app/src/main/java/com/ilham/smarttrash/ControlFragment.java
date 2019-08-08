@@ -31,9 +31,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ControlFragment extends Fragment {
 
 //    private String URL = "https://smarttrash.000webhostapp.com/";
-    public static final String URL = "http://192.168.43.32/";
+//    public static final String URL = "http://192.168.43.32/";
 //    private static final String URL = "http://192.168.42.212/esloin/";
-
+    private static final String URL = "http://192.168.1.7/esloin/";
     SharedPreferences mData;
 
     private Button btnPenetes;

@@ -1,7 +1,11 @@
 package com.ilham.smarttrash;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -9,11 +13,13 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,14 +43,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class HomeFragment extends Fragment {
 
 //    private String URL = "https://smarttrash.000webhostapp.com/" ;
-    private static final String URL = "http://192.168.43.32/";
+//    private static final String URL = "http://192.168.43.32/";
 //    private static final String URL = "http://192.168.42.212/esloin/";
+//    private static final String URL = "http://192.168.1.25/esloin/";
     private List<ResultItem> results;
 
 //    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 
     private Button btnMulai;
+//    private Button btnStop;
     private TextView txtMulai;
     private TextView txtHari;
 
@@ -54,7 +62,7 @@ public class HomeFragment extends Fragment {
     private Boolean isOn;
 
     private Handler handler1 = new Handler();
-    private Handler handler2 = new Handler();
+//    private Handler handler2 = new Handler();
 
     private final View.OnClickListener mListener = new View.OnClickListener() {
         public void onClick(View view) {
@@ -62,6 +70,9 @@ public class HomeFragment extends Fragment {
                 case R.id.btnMulai:
                     tmblMulai();
                     break;
+//                case R.id.btnStop:
+//                    prosesStop();
+//                    break;
             }
         }
     };
@@ -75,6 +86,7 @@ public class HomeFragment extends Fragment {
         mData= getActivity().getSharedPreferences("SAVE_DATA", Context.MODE_PRIVATE);
 
         btnMulai = (Button) view.findViewById(R.id.btnMulai);
+//        btnStop = (Button) view.findViewById(R.id.btnStop);
         txtMulai = (TextView) view.findViewById(R.id.txtMulai);
         txtHari = (TextView) view.findViewById(R.id.txtHari);
 
@@ -89,25 +101,31 @@ public class HomeFragment extends Fragment {
 
         checkSavedPreference();
 
+//        tampilNotifikasi();
+
         return view;
+
+        // Notif
     }
 
     private void checkSavedPreference() {
 //        SharedPreferences mData = getActivity().getSharedPreferences("SAVE_DATA", Context.MODE_PRIVATE);
         String isOn = mData.getString("isOn", "");
 
-        if(!isOn.isEmpty()){
-            if(isOn.equals("true") ){
-                txtMulai.setText("Pupuk Sedang di Proses");
-                btnMulai.setSelected(true);
-                btnMulai.setEnabled(false);
-                handler2.post(runnable2);
-            }
-            else {
-                txtMulai.setText("Pupuk Belum di Proses");
-                btnMulai.setSelected(false);
-                btnMulai.setEnabled(true);
-            }
+        if(isOn.equals("true") ){
+            txtMulai.setText("Pupuk Sedang di Proses");
+            btnMulai.setSelected(true);
+            btnMulai.setEnabled(false);
+//            btnStop.setEnabled(true);
+            handler1.post(runnable2);
+        }
+        else {
+            txtHari.setText("Hari ke : ");
+            txtMulai.setText("Proses Berhenti");
+            btnMulai.setEnabled(true);
+//            btnStop.setEnabled(false);
+//            handler1.removeCallbacks(runnable2);
+
         }
 
     }
@@ -117,6 +135,7 @@ public class HomeFragment extends Fragment {
         waktuSekarang();
 //        onLoad1();
     }
+
 //
 //    private void viewKontrol(){
 //        Retrofit retrofit = new Retrofit.Builder()
@@ -208,16 +227,18 @@ public class HomeFragment extends Fragment {
 
     private void onTrue1(){
         isOn = true;
-        txtMulai.setText("Sedang Dimulai");
         btnMulai.setSelected(true);
         btnMulai.setEnabled(false);
+//        btnStop.setEnabled(true);
+        txtHari.setText("Hari ke : 0");
+        txtMulai.setText("Pupuk Sedang di Proses");
 
         SharedPreferences.Editor editor = mData.edit();
         editor.putString("isOn", String.valueOf(isOn));
         editor.apply();
 
         if (isOn == true) {
-            handler2.post(runnable2);
+            handler1.post(runnable2);
         }
     }
 
@@ -230,7 +251,7 @@ public class HomeFragment extends Fragment {
 
        Date currentDate = new Date();
 
-       // convert date to calendar
+//       // convert date to calendar
 //       Calendar cal = Calendar.getInstance();
 //       cal.setTime(currentDate);
 //
@@ -239,12 +260,12 @@ public class HomeFragment extends Fragment {
 //       cal.add(Calendar.MONTH, 0);
 //       cal.add(Calendar.DATE, 0); //same with c.add(Calendar.DAY_OF_MONTH, 1);
 //       cal.add(Calendar.HOUR, 0);
-//       cal.add(Calendar.MINUTE, 1);
-//       cal.add(Calendar.SECOND, 0);
+//       cal.add(Calendar.MINUTE, 0);
+//       cal.add(Calendar.SECOND, 5);
 //
 //       // convert calendar to date
 //       Date currentDatePlusOne = cal.getTime();
-
+//
 //       SharedPreferences.Editor editor = mData.edit();
 //       editor.putString("currentDatePlus", String.valueOf(currentDatePlusOne));
 //       editor.apply();
@@ -309,21 +330,36 @@ public class HomeFragment extends Fragment {
        Date currentDatePlusOne13 = cal13.getTime();
        Date currentDatePlusOne14 = cal14.getTime();
 
+       String formattedCurrentDatePluseOne1 = dateFormat.format(currentDatePlusOne1);
+       String formattedCurrentDatePluseOne2 = dateFormat.format(currentDatePlusOne2);
+       String formattedCurrentDatePluseOne3 = dateFormat.format(currentDatePlusOne3);
+       String formattedCurrentDatePluseOne4 = dateFormat.format(currentDatePlusOne4);
+       String formattedCurrentDatePluseOne5 = dateFormat.format(currentDatePlusOne5);
+       String formattedCurrentDatePluseOne6 = dateFormat.format(currentDatePlusOne6);
+       String formattedCurrentDatePluseOne7 = dateFormat.format(currentDatePlusOne7);
+       String formattedCurrentDatePluseOne8 = dateFormat.format(currentDatePlusOne8);
+       String formattedCurrentDatePluseOne9 = dateFormat.format(currentDatePlusOne9);
+       String formattedCurrentDatePluseOne10 = dateFormat.format(currentDatePlusOne10);
+       String formattedCurrentDatePluseOne11 = dateFormat.format(currentDatePlusOne11);
+       String formattedCurrentDatePluseOne12 = dateFormat.format(currentDatePlusOne12);
+       String formattedCurrentDatePluseOne13 = dateFormat.format(currentDatePlusOne13);
+       String formattedCurrentDatePluseOne14 = dateFormat.format(currentDatePlusOne14);
+
        SharedPreferences.Editor editor = mData.edit();
-       editor.putString("currentDatePlus1", String.valueOf(currentDatePlusOne1));
-       editor.putString("currentDatePlus2", String.valueOf(currentDatePlusOne2));
-       editor.putString("currentDatePlus3", String.valueOf(currentDatePlusOne3));
-       editor.putString("currentDatePlus4", String.valueOf(currentDatePlusOne4));
-       editor.putString("currentDatePlus5", String.valueOf(currentDatePlusOne5));
-       editor.putString("currentDatePlus6", String.valueOf(currentDatePlusOne6));
-       editor.putString("currentDatePlus7", String.valueOf(currentDatePlusOne7));
-       editor.putString("currentDatePlus8", String.valueOf(currentDatePlusOne8));
-       editor.putString("currentDatePlus9", String.valueOf(currentDatePlusOne9));
-       editor.putString("currentDatePlus10", String.valueOf(currentDatePlusOne10));
-       editor.putString("currentDatePlus11", String.valueOf(currentDatePlusOne11));
-       editor.putString("currentDatePlus12", String.valueOf(currentDatePlusOne12));
-       editor.putString("currentDatePlus13", String.valueOf(currentDatePlusOne13));
-       editor.putString("currentDatePlus14", String.valueOf(currentDatePlusOne14));
+       editor.putString("currentDatePlus1", formattedCurrentDatePluseOne1);
+       editor.putString("currentDatePlus2", formattedCurrentDatePluseOne2);
+       editor.putString("currentDatePlus3", formattedCurrentDatePluseOne3);
+       editor.putString("currentDatePlus4", formattedCurrentDatePluseOne4);
+       editor.putString("currentDatePlus5", formattedCurrentDatePluseOne5);
+       editor.putString("currentDatePlus6", formattedCurrentDatePluseOne6);
+       editor.putString("currentDatePlus7", formattedCurrentDatePluseOne7);
+       editor.putString("currentDatePlus8", formattedCurrentDatePluseOne8);
+       editor.putString("currentDatePlus9", formattedCurrentDatePluseOne9);
+       editor.putString("currentDatePlus10", formattedCurrentDatePluseOne10);
+       editor.putString("currentDatePlus11", formattedCurrentDatePluseOne11);
+       editor.putString("currentDatePlus12", formattedCurrentDatePluseOne12);
+       editor.putString("currentDatePlus13", formattedCurrentDatePluseOne13);
+       editor.putString("currentDatePlus14", formattedCurrentDatePluseOne14);
        editor.apply();
 
    }
@@ -334,10 +370,13 @@ public class HomeFragment extends Fragment {
             // Insert custom code here
 
             Date currentTime = new Date();
+            String formattedCurrentDatePluseOne = dateFormat.format(currentTime);
 //            SharedPreferences mData = getActivity().getSharedPreferences("SAVE_DATA", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = mData.edit();
-            editor.putString("currentDate", String.valueOf(currentTime));
+            editor.putString("currentDate", formattedCurrentDatePluseOne);
             editor.apply();
+
+            Log.d("Saiki = ", formattedCurrentDatePluseOne);
 
 //
 //
@@ -358,11 +397,27 @@ public class HomeFragment extends Fragment {
 //            viewKontrol();
 //            waktuSekarang();
 
-//            String currentDatePlus = mData.getString("currentDatePlus", "");
-
-
-
             String currentDate = mData.getString("currentDate", "");
+
+//            Log.d("Saiki = ", currentDate);
+
+//            String currentDatePlus = mData.getString("currentDatePlus", "");
+//
+//            if(currentDate.equals(currentDatePlus)){
+//                isOn = false;
+//                btnMulai.setEnabled(true);
+//                btnMulai.setSelected(false);
+////                btnStop.setEnabled(false);
+//                txtHari.setText("Hari ke : 14");
+//                txtMulai.setText("Sudah Selesai");
+//
+//                SharedPreferences.Editor editor = mData.edit();
+//                editor.putString("isOn", String.valueOf(isOn));
+//                editor.apply();
+//
+//                handler1.removeCallbacks(runnable2);
+//            }
+
             String currentDatePlus1 = mData.getString("currentDatePlus1", "");
             String currentDatePlus2 = mData.getString("currentDatePlus2", "");
             String currentDatePlus3 = mData.getString("currentDatePlus3", "");
@@ -381,6 +436,7 @@ public class HomeFragment extends Fragment {
 
             if(currentDate.equals(currentDatePlus1)){
                 txtHari.setText("Hari ke : 1");
+
             }
             else if(currentDate.equals(currentDatePlus2)){
                 txtHari.setText("Hari ke : 2");
@@ -429,11 +485,55 @@ public class HomeFragment extends Fragment {
                 editor.putString("isOn", String.valueOf(isOn));
                 editor.apply();
 
-                handler2.removeCallbacks(runnable2);
+                handler1.removeCallbacks(runnable2);
+            }
+            else {
+                txtHari.setText("Hari ke : 0");
             }
 
             // Repeat every 2 seconds
-            handler2.postDelayed(runnable2, 1000);
+            handler1.postDelayed(runnable2, 1000);
         }
     };
+
+    private void prosesStop(){
+//        isOn = false;
+//        txtHari.setText("Hari ke : ");
+//        txtMulai.setText("Pupuk Belum di Proses");
+//        btnMulai.setSelected(false);
+//        btnMulai.setEnabled(true);
+//        btnStop.setEnabled(false);
+//
+//        SharedPreferences.Editor editor = mData.edit();
+//        editor.putString("isOn", String.valueOf(isOn));
+//        editor.apply();
+//
+//        Log.d("Bool : ", String.valueOf(isOn));
+//
+//        handler1.removeCallbacks(runnable2);
+        String hai = "hai";
+        Log.d("hai ", hai);
+    }
+
+    public static final int notifikasi = 1;
+
+    private void tampilNotifikasi() {
+        // membuat komponen notifikasi
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity());
+        Notification notification;
+        notification = builder.setSmallIcon(R.mipmap.ic_launcher)
+                .setAutoCancel(true)
+                .setContentTitle("test")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setLargeIcon(BitmapFactory.decodeResource(getActivity().getResources()
+                        , R.mipmap.ic_launcher))
+                .setContentText("test")
+                .build();
+
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
+
+        NotificationManager notificationManager = (NotificationManager) getActivity()
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(notifikasi, notification);
+    }
 }
