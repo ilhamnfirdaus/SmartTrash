@@ -52,7 +52,7 @@ public class HomeFragment extends Fragment {
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 
     private Button btnMulai;
-//    private Button btnStop;
+    private Button btnStop;
     private TextView txtMulai;
     private TextView txtHari;
 
@@ -70,9 +70,10 @@ public class HomeFragment extends Fragment {
                 case R.id.btnMulai:
                     tmblMulai();
                     break;
-//                case R.id.btnStop:
-//                    prosesStop();
-//                    break;
+                case R.id.btnStop:
+                    String test = "test";
+                    Log.d("test", test);
+                    break;
             }
         }
     };
@@ -86,11 +87,12 @@ public class HomeFragment extends Fragment {
         mData= getActivity().getSharedPreferences("SAVE_DATA", Context.MODE_PRIVATE);
 
         btnMulai = (Button) view.findViewById(R.id.btnMulai);
-//        btnStop = (Button) view.findViewById(R.id.btnStop);
+        btnStop = (Button) view.findViewById(R.id.btnStop);
         txtMulai = (TextView) view.findViewById(R.id.txtMulai);
         txtHari = (TextView) view.findViewById(R.id.txtHari);
 
         view.findViewById(R.id.btnMulai).setOnClickListener(mListener);
+        view.findViewById(R.id.btnStop).setOnClickListener(mListener);
 
         handler1.post(runnable1);
 
