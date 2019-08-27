@@ -30,25 +30,12 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 
 public class ReportFragment extends Fragment {
 
-//    private String URL = "https://smarttrash.000webhostapp.com/";
+    private String URL = "http://tasmarttrash.site/";
 //    private static final String URL = "http://192.168.43.32/";
 //    private static final String URL = "http://192.168.42.212/esloin/";
-    private static final String URL = "http://192.168.1.18/esloin/";
+//    private static final String URL = "http://192.168.1.18/esloin/";
 
     SharedPreferences mData;
-
-    public float kelembaban1;
-    public float kelembaban2;
-    public float kelembaban3;
-    public float kelembaban4;
-    public float kelembaban5;
-    public float kelembaban6;
-    public float kelembaban7;
-    public float kelembaban8;
-    public float kelembaban9;
-    public float kelembaban10;
-    public float kelembaban11;
-    public float kelembaban12;
 
     TextView txtStatus;
     TextView txtJarak;
@@ -82,7 +69,6 @@ public class ReportFragment extends Fragment {
         txtKelembaban = (TextView) view.findViewById(R.id.txtKelembaban);
 
         graph1 = (GraphView) view.findViewById(R.id.graph1);
-//        graph2 = (GraphView) view.findViewById(R.id.graph2);
 
         // set manual X bounds
         graph1.getViewport().setXAxisBoundsManual(true);
@@ -94,7 +80,8 @@ public class ReportFragment extends Fragment {
         graph1.getViewport().setMinY(0);
         graph1.getViewport().setMaxY(100);
 
-        handler.post(runnable);
+        handler.post(runnable1);
+        handler.post(runnable2);
 
         return view;
     }
@@ -118,16 +105,16 @@ public class ReportFragment extends Fragment {
                     if (results.size() > 0) {
                         Integer check = results.get(results.size() - 1).getUltrasonik();
 
-                        txtJarak.setText("Ketinggian sampah : " + results.get(results.size() - 1).getUltrasonik() + " cm");
-                        txtKelembaban.setText(results.get(results.size() - 1).getKelembaban() + " rh");
+                        txtJarak.setText("Data Ultrasonik : " + results.get(results.size() - 1).getUltrasonik() + " cm");
+                        txtKelembaban.setText(results.get(results.size() - 1).getKelembaban() + " %");
                         txtSuhu.setText(results.get(results.size() - 1).getSuhu() + " °C");
 
                         SharedPreferences.Editor editor = mData.edit();
                         editor.putInt("statusSampah", check);
                         editor.apply();
                     }else{
-                        txtJarak.setText("Ketinggian sampah : 0 cm");
-                        txtKelembaban.setText("0 rh");
+                        txtJarak.setText("Data Ultrasonik : 0 cm");
+                        txtKelembaban.setText("0 %");
                         txtSuhu.setText("0 °C");
 
                         SharedPreferences.Editor editor = mData.edit();
@@ -139,8 +126,8 @@ public class ReportFragment extends Fragment {
 
             @Override
             public void onFailure(Call<Value> call, Throwable t) {
-                txtJarak.setText("Ketinggian sampah : 0 cm");
-                txtKelembaban.setText("0 rh");
+                txtJarak.setText("Data Ultrasonik : 0 cm");
+                txtKelembaban.setText("0 %");
                 txtSuhu.setText("0 °C");
 
                 SharedPreferences.Editor editor = mData.edit();
@@ -167,33 +154,6 @@ public class ReportFragment extends Fragment {
                 String value = response.body().getValue();
                 if (value.equals("1")) {
                     results = response.body().getResult();
-
-//                    float kelembaban1;
-//                    float kelembaban2;
-//                    float kelembaban3;
-//                    float kelembaban4;
-//                    float kelembaban5;
-//                    float kelembaban6;
-//                    float kelembaban7;
-//                    float kelembaban8;
-//                    float kelembaban9;
-//                    float kelembaban10;
-//                    float kelembaban11;
-//                    float kelembaban12;
-
-//                    kelembaban1 = results.get(0).getKelembaban();
-//                    kelembaban2 = results.get(1).getKelembaban();
-//                    kelembaban3 = results.get(2).getKelembaban();
-//                    kelembaban4 = results.get(3).getKelembaban();
-//                    kelembaban5 = results.get(4).getKelembaban();
-//                    kelembaban6 = results.get(5).getKelembaban();
-//                    kelembaban7 = results.get(6).getKelembaban();
-//                    kelembaban8 = results.get(7).getKelembaban();
-//                    kelembaban9 = results.get(8).getKelembaban();
-//                    kelembaban10 = results.get(9).getKelembaban();
-//                    kelembaban11 = results.get(10).getKelembaban();
-//                    kelembaban12 = results.get(11).getKelembaban();
-                    //dht = results.get(0).getDht();
 
                     Log.d("size", String.valueOf(results.size()));
 
@@ -668,7 +628,7 @@ public class ReportFragment extends Fragment {
 //        SharedPreferences mData = getActivity().getSharedPreferences("SAVE_DATA", Context.MODE_PRIVATE);
         int status = mData.getInt("statusSampah", -1);
 
-        if(status <= 10) {
+        if(status <= 15) {
             txtStatus.setText("Status Sampah : Penuh");
         }
         else {
@@ -677,7 +637,7 @@ public class ReportFragment extends Fragment {
     }
 
     // Define the code block to be executed
-    private Runnable runnable = new Runnable() {
+    private Runnable runnable1 = new Runnable() {
         @Override
         public void run() {
             // Insert custom code here
@@ -685,11 +645,23 @@ public class ReportFragment extends Fragment {
             loadData();
             loadData1();
 //            loadData2();
+
+
+            // Repeat every 2 seconds
+            handler.postDelayed(runnable1, 3000);
+        }
+    };
+
+    // Define the code block to be executed
+    private Runnable runnable2 = new Runnable() {
+        @Override
+        public void run() {
+            // Insert custom code here
             status();
 
 
             // Repeat every 2 seconds
-            handler.postDelayed(runnable, 1000);
+            handler.postDelayed(runnable2, 1000);
         }
     };
 
